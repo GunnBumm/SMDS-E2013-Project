@@ -1,0 +1,82 @@
+% IMPORTANT NOTES TO FOLLOW OVERALL:
+%A) the lab description of the respective topic (to make the report selfcontained)
+%B) 1-2 pages pointing out how much they solved and which issues they encountered
+%C) A “print” of an example run
+%D) 1-2 pages where they relate what they did to the relevant theory in the curriculum
+%E) max 1 page conclusion, concluding what was solved well (perhaps even makes you proud :-)- and what could be done differently/better and why
+
+
+\section*{REST}
+
+\subsection*{Description}
+
+As an elaboration on the task manager application this chapter is about building a \textit{RESTful} web service, such that multiple clients can access and modify the task-manager.xml file. 
+For this we are using the JAX-RS API and the Jersey Framework.
+In order to keep control on multiple and concurrent requests on the web server, we are using a task provider, called \textit{TaskManagerDAOEnum.java}, that functions as a singleton data access object. We will be using the already existing classes Task.java and Cal.java to handle serialization.
+
+\subsection*{Implementation}
+
+The web service exposes four operations that are based on the explicit \textit{HTTP} methods: \textit{GET}, \textit{POST}, \textit{PUT} and \textit{DELETE}. 
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=90mm]{graphics/figure1.gif}
+		\caption{REST Protocol}
+		\label{overflow}
+\end{figure}
+%figure from code. Example
+
+%yaaadijadada
+
+\subsection*{Relevant Theory}
+Up until now we have been dealing a set of modules that communicate with each other. In order to control the possible interactions between the modules, each module is presented by an explicit interface. This interface defines the procedures and variables that can be accessed by other modules.
+
+In this original client-server model, both client and server are functionally specialized. This restricts the potential scope of applications. Web services return to this original structure, in which an application-specific client interacts with a functionalize interface over the Internet. In particular web services allow complex applications to be developed by providing services that integrate several other services. Due to the generality of their interactions, web services cannot be accessed directly by browsers. 
+
+
+A service interface can provide operations for accessing and updating the data resources it manages. The interaction between client and server is similar to RMI, where client uses a remote object reference to invoke an operation in a remote object. For a web service, the client uses a URI to invoke an operation in the resource named by that URI. 
+
+Web services either use a synchronous request-reply pattern of communication with their clients or communicate by means of asynchronous messages. An event-style patterns may also be used; notifications for example. 
+
+More generally web services are designed to support distributed computing in the Internet, in which many different programming languages and paradigms coexist. They are independent. 
+
+Loose coupling is a desirable design principle within web services. Programming with interfaces provides one level of loose coupling. 
+The trend is moving towards more generic an simple interfaces in distributed systems. The World Wide Web and REST are example of this. This trend presents data-orientation, where the data is more important than operations. 
+
+
+\subsubsection*{REST versus SOAP}
+
+Microsoft developed in 1998 a platform-independent and neutral alternative to the Common Object Request Broker Architecture (CORBA), this new alternative was called Simple Object Access Protocol or SOAP for short.
+Together with WDSL and XML schemas, SOAP became the standard within designing the Web Services. A SOAP message consists of four elements.
+
+\begin{itemize}
+\item \textit{SOAP <Envelope>}. This is the root element which contains two of the other elements.
+\item \textit{SOAP <Header>}. Sub element of \textit{<Envelope>} which contain application related information, such as authentication of users.
+\item \textit{SOAP <Body>}. This is the content of the message.
+\item \textit{SOAP <Faults>}. Sub element of \textit{<Body>} which is used for error reporting.
+\end{itemize}
+	
+SOAP was meant to be a simple protocol, but SOAP messages can become very long and complex, the alternative to SOAP is Representative State Transfer or REST for short.
+REST consists of clients and servers which share resources with each other. A resource can be anything, as long as the client is able to understand and use the resource. A representation of a resource is a document describing the state of the resource. The client can be in two states, application-state or at rest. When the client is at rest, a user can interact with the client and it creates no load on the server
+The emphasis is on the manipulation of data resources rather than the interfaces. Clients are provided with the entire state of a resource instead of calling an operation to get some part of it. 
+
+REST is based on simple point-to-point communication via HTTP and it uses plain old XML (POX). There are four operations in REST which defines how a resource can be accessed: \textbf{GET}, \textbf{PUT}, \textbf{POST} and \textbf{DELETE}.
+
+
+There are five constraints which a Web Service must adhere in REST:
+\begin{itemize}
+\item Client-Server separation. The client is not involved with server functionality and the server is not involved with user interface.
+\item Stateless. The server does not contain any states.
+\item Cacheable. The client must be able to store responses from the server and thus remove redundant requests.
+\item Layered System. The client does not know that it is directly connected to the server or if the connection is going through a proxy-server. This enables scalability and load-balancing.
+\item Uniform interface. Uniform interface separates the individual parts of the system and adds Separation of Concern.
+\end{itemize}
+
+
+There are four principles which must be adhered in the uniform interface between client and server.
+\begin{itemize}
+\item Resources must be identifiable by a unique address or key.
+\item Manipulation of resources via representations.
+\item Self-describing messages. Each message contains enough information about how the message must be handled.
+\item HATEOAS\footnote{http://en.wikipedia.org/wiki/HATEOAS}. Hypermedia as the Engine of Application State. HATEOAS describes how a hypermedia can control the state of the resource. This is done by using links to URL’s which contain the operations that change the state.
+\end{itemize} 

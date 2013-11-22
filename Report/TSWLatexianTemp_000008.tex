@@ -1,0 +1,29 @@
+\documentclass[11pt,a4paper,oneside]{scrbook}
+\usepackage{pslatex,palatino,avant,graphicx,color}
+\usepackage[margin=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[backend = biber]{biblatex}
+\renewcommand*{\bibfont}{\rmdefault\changefontsizes{11pt}}
+
+\begin{document}
+\title{Mobile and Distributed Systems}
+\subtitle{IT University Copenhagen}
+\author{\textbf{Jorge Y. Castillo}\\
+	    \texttt{\color{red}jyur@itu.dk}\\
+  \textbf{Gunn Weihe Reinert}\\
+	\texttt{\color{red}gwre@itu.dk}\\
+  \textbf{Efrin Gonzalez Borrayo}\\
+	\texttt{\color{red}efag@itu.dk}\\
+  \textbf{Rasmus Kreiner}\\
+	\texttt{\color{red}rkre@itu.dk}\\
+  \\
+  }
+\date{\today}
+\maketitle
+
+%Gunn Start in introduction
+%Jorge task manager servelet and tcp task manager server and xml serialization
+\input{pageGetter.tex}
+
+\end{document}

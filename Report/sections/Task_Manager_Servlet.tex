@@ -1,0 +1,65 @@
+% IMPORTANT NOTES TO FOLLOW OVERALL:
+%A) the lab description of the respective topic (to make the report selfcontained) DONE
+%B) 1-2 pages pointing out how much they solved and which issues they encountered \work more on it
+%C) A “print” of an example run \missing
+%D) 1-2 pages where they relate what they did to the relevant theory in the curriculum \working on it
+%E) max 1 page conclusion, concluding what was solved well (perhaps even makes you proud :-)- and what could be done differently/better and why
+
+\section*{Task Manager Servelet}
+
+\subsection*{Description:}
+
+The main functionality of a \textit{Task Manager} for this assignment is to store and show the tasks assigned to users. The \textit{Task Manager} also needed to keep track of the task that are been executed. 
+
+This first version of the \textit{Task Manager} did consist in finding strings, integers or booleans in a provide $xml$ file such as: Name, date or a status field which indicates if the task has been executed before or not.  Also if such elements contains node childrens in the xml data, there is the goal to read this values to be able to know who is aloud to read, write or execute such tasks. 
+
+\subsection*{Important Points:}
+
+\subsubsection*{Setting up local Server} Since most of class excises are required to be written in $Java$ it was advice to use either \textit{Eclipse} or either \textit{Netbeans} to be able to develop this programs, furthermore since this application need to have a web server which is not located in any dedicated server there was the need to have a \textbf{localhost} such as Tomcat\footnote{http://tomcat.apache.org/} which is an apache server that is able to run servlets and JSP pages.
+
+
+Even though Tomcat's installation was quiet simple when the existing eclipse EDI if existing, does not have it as a extra package already. Other wise there a version of eclipse that does have this as a default package at the time of download.
+
+\subsubsection*{Errors In Input File:}
+
+One of the main problems in the part of the assignments was mostly trying to get the file location with in the servlet, since path use in the example is the following:
+
+\begin{lstlisting}[language=java]
+	FileInputStream stream = 
+	new FileInputStream("C:/path/to/file/task-manager-xml.xml");
+\end{lstlisting}
+
+In this way it created some errors in the parser, since such file did not exist in either of the computers of the others group members, even though $FileInputStream$ is the right solution for reading raw bytes from a file.
+
+There still was the problem with the string that contained the file path, even tho there is a lot methods to solve this for example placing the file in a dedicated server with it respective API calls and security keys, but since there is only need for now to prepare the file to be in a local computer at the moment, the solution looked as follow:
+
+\begin{lstlisting}[language=java]
+	String root = System.getProperty("user.dir");
+    String filepath = "";
+            
+    if(System.getProperty("os.name").toLowerCase().equals("mac os x")) 
+	filepath = "/src/resources/task-manager-xml.xml";
+    
+	else filepath = "\\src\\resources\\task-manager-xml.xml"; 
+            
+    path = root+filepath;
+\end{lstlisting}
+ 
+By doing this, we can run all needed test without having to change any configuration or path strings in any of the projects since we define the path of the file depending of it s a mac or Windows machine.
+
+\subsubsection*{Getting Users By ID}
+
+
+
+
+\subsection*{Relavant Theory}
+
+% getInputStream
+% GET POST Methods in java
+% using Servlets or JSP pages
+% configuration file (web.xml).
+
+\subsubsection*{Using getInputStream \footnote{http://docs.oracle.com/javase/6/docs/api/java/net/URLConnection.html}}
+
+
+
