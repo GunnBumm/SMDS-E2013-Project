@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Create New task</title>
+</head>
+<body>
+  <form action="../03-RestWebServer/rest/tasks/create" method="POST">-
+  
+	  <label for="id">id</label>
+	  <input name="id" />
+	  <br/>
+	  
+	  <label for="name">name</label>
+	  <input name="name" />
+	  <br/>
+	  
+	  <label for="date">date</label>
+	  <input name="date" />
+	  <br/>
+	  
+	  <label for="status">status</label>
+	  <input name="status" />
+	  <br/>
+	  
+	  <label for="required">required</label>
+	  <input name="required" />
+	  <br/>
+	  Description:
+	  <TEXTAREA NAME="description" COLS=40 ROWS=6></TEXTAREA>
+	  <br/>
+	  
+	  <label for="attendants">attendants</label>
+	  <input name="attendants" />
+	  <br/>
+	  
+	  <input type="submit" value="Submit" />
+  </form>
+</body>
+</html>
