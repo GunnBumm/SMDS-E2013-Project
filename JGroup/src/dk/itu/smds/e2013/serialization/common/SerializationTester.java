@@ -6,6 +6,8 @@ package dk.itu.smds.e2013.serialization.common;
 
 import javax.xml.bind.JAXBException;
 
+import dk.itu.smds.e2013.serialization.common.Envelopes.Envelope;
+
 /**
  *
  * @author rao

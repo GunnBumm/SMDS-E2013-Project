@@ -13,8 +13,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -24,195 +26,156 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * 
  * @author rao
  */
 public class TaskSerializer {
 
-    public static Task DeserializeTask(String taskXml) throws JAXBException {
+	public static Task DeserializeTask(String taskXml) throws JAXBException {
 
-        // create a context object for Student Class
-        JAXBContext jaxbContext = JAXBContext.newInstance(Task.class);
+		// create a context object for Student Class
+		JAXBContext jaxbContext = JAXBContext.newInstance(Task.class);
 
+		StringReader reader = new StringReader(taskXml);
+		// Call unmarshal method to deserialize task Xml into object.
+		Task task = (Task) jaxbContext.createUnmarshaller().unmarshal(reader);
 
-        StringReader reader = new StringReader(taskXml);
-        // Call unmarshal method to deserialize task Xml into object.
-        Task task = (Task) jaxbContext.createUnmarshaller().unmarshal(reader);
+		return task;
 
+	}
 
-        return task;
+	public static String SerializeEnvelope(Envelope envelope)
+			throws JAXBException {
 
+		// create a context object for Student Class
+		JAXBContext jaxbContext = JAXBContext.newInstance(Envelope.class);
 
-    }
+		// Serialize envelope object into xml.
 
-    public static String SerializeEnvelope(Envelope envelope) throws JAXBException {
+		StringWriter writer = new StringWriter();
 
-        // create a context object for Student Class
-        JAXBContext jaxbContext = JAXBContext.newInstance(Envelope.class);
+		// We can use the same context object, as it knows how to
+		// serialize or deserialize University class.
+		jaxbContext.createMarshaller().marshal(envelope, writer);
 
+		return writer.toString();
 
-        // Serialize envelope object into xml.
+	}
 
-        StringWriter writer = new StringWriter();
+	public static Envelope DeserializeEnvelope(String envelopeXml)
+			throws JAXBException {
+		// create a context object for Student Class
+		JAXBContext jaxbContext = JAXBContext.newInstance(Envelope.class);
 
-        // We can use the same context object, as it knows how to 
-        //serialize or deserialize University class.
-        jaxbContext.createMarshaller().marshal(envelope, writer);
+		StringReader reader = new StringReader(envelopeXml);
+		// Call unmarshal method to deserialize task Xml into object.
+		Envelope envelope = (Envelope) jaxbContext.createUnmarshaller()
+				.unmarshal(reader);
 
+		return envelope;
 
+	}
 
-        return writer.toString();
+	public static List<Task> DeserializeTaskListRevised(String taskListXml)
+			throws JAXBException {
 
-    }
-    
-    
+		// create a context object for Student Class
+		JAXBContext jaxbContext = JAXBContext.newInstance(TaskList.class);
 
-    public static Envelope DeserializeEnvelope(String envelopeXml) throws JAXBException {
-        // create a context object for Student Class
-        JAXBContext jaxbContext = JAXBContext.newInstance(Envelope.class);
+		StringReader reader = new StringReader(taskListXml);
+		// Call unmarshal method to deserialize task Xml into object.
+		List<Task> tasklist = ((TaskList) jaxbContext.createUnmarshaller()
+				.unmarshal(reader)).list;
 
+		return tasklist;
 
-        StringReader reader = new StringReader(envelopeXml);
-        // Call unmarshal method to deserialize task Xml into object.
-        Envelope envelope = (Envelope) jaxbContext.createUnmarshaller().unmarshal(reader);
+	}
 
+	public static String SerializeTaskList(List<Task> tasklist)
+			throws JAXBException {
 
-        return envelope;
+		// create a context object for Student Class
+		JAXBContext jaxbContext = JAXBContext.newInstance(TaskList.class);
 
+		TaskList tl = new TaskList(tasklist);
 
-    }
+		// Serialize university object into xml.
 
-    public static List<Task> DeserializeTaskListRevised(String taskListXml) throws JAXBException {
+		StringWriter writer = new StringWriter();
 
-        // create a context object for Student Class
-        JAXBContext jaxbContext = JAXBContext.newInstance(TaskList.class);
+		// We can use the same context object, as it knows how to
+		// serialize or deserialize University class.
+		jaxbContext.createMarshaller().marshal(tl, writer);
 
+		return writer.toString();
 
-        StringReader reader = new StringReader(taskListXml);
-        // Call unmarshal method to deserialize task Xml into object.
-        List<Task> tasklist = ((TaskList) jaxbContext.createUnmarshaller().unmarshal(reader)).list;
+	}
 
+	public static List<Task> DeserializeTaskList(String taskListXml)
+			throws JAXBException, SAXException, IOException, JDOMException {
 
-        return tasklist;
+		StringReader reader = new StringReader(taskListXml);
 
-    }
+		InputSource source = new InputSource(reader);
 
-    public static String SerializeTaskList(List<Task> tasklist) throws JAXBException {
+		SAXBuilder builder = new SAXBuilder();
 
+		Document doc = builder.build(source);
 
-        // create a context object for Student Class
-        JAXBContext jaxbContext = JAXBContext.newInstance(TaskList.class);
+		Element rootElement = doc.getRootElement();
 
-        TaskList tl = new TaskList(tasklist);
+		List<Element> children = rootElement.getChildren();
 
-        // Serialize university object into xml.
+		List<Task> tasklist = new ArrayList<Task>();
 
-        StringWriter writer = new StringWriter();
+		for (int index = 0; index < children.size(); index++) {
 
-        // We can use the same context object, as it knows how to 
-        //serialize or deserialize University class.
-        jaxbContext.createMarshaller().marshal(tl, writer);
+			Element child = children.get(index);
 
+			String taskXml = GetElementXml(child.clone());
 
+			Task DeserializeTask = DeserializeTask(taskXml);
 
-        return writer.toString();
+			tasklist.add(DeserializeTask);
 
-    }
+		}
 
-    public static List<Task> DeserializeTaskList(String taskListXml) throws JAXBException, SAXException, IOException, JDOMException {
+		// DOMParser parser = new DOMParser();
+		//
+		// parser.parse(source);
+		//
+		// Document document = parser.getDocument();
+		//
+		//
+		// Element tasksElement = document.getDocumentElement();
+		//
 
+		//
+		//
+		// NodeList childNodes = tasksElement.getChildNodes();
+		//
+		//
+		// for (int x = 0; x < childNodes.getLength(); x++) {
+		// Node node = childNodes.item(x);
+		//
+		//
+		//
+		// }
 
-        StringReader reader = new StringReader(taskListXml);
+		return tasklist;
+	}
 
+	private static String GetElementXml(Element element) throws IOException {
 
-        InputSource source = new InputSource(reader);
+		Document xmlDoc = new Document();
 
-        SAXBuilder builder = new SAXBuilder();
+		StringWriter writer = new StringWriter();
 
+		xmlDoc.addContent(element);
 
-        Document doc = builder.build(source);
+		new XMLOutputter().output(xmlDoc, writer);
 
+		return writer.toString();
 
-        Element rootElement = doc.getRootElement();
-
-        List<Element> children = rootElement.getChildren();
-
-        List<Task> tasklist = new ArrayList<Task>();
-
-        for (int index = 0; index < children.size(); index++) {
-
-            Element child = children.get(index);
-
-
-            String taskXml = GetElementXml(child.clone());
-
-            Task DeserializeTask = DeserializeTask(taskXml);
-
-            tasklist.add(DeserializeTask);
-
-
-
-
-        }
-
-
-
-
-
-
-
-
-//        DOMParser parser = new DOMParser();
-//
-//        parser.parse(source);
-//
-//        Document document = parser.getDocument();
-//
-//
-//        Element tasksElement = document.getDocumentElement();
-//
-
-//
-//
-//        NodeList childNodes = tasksElement.getChildNodes();
-//
-//
-//        for (int x = 0; x < childNodes.getLength(); x++) {
-//            Node node = childNodes.item(x);
-//            
-//            
-//
-//        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return tasklist;
-    }
-
-    private static String GetElementXml(Element element) throws IOException {
-
-        Document xmlDoc = new Document();
-
-        StringWriter writer = new StringWriter();
-
-        xmlDoc.addContent(element);
-
-        new XMLOutputter().output(xmlDoc, writer);
-
-
-
-        return writer.toString();
-
-    }
+	}
 }

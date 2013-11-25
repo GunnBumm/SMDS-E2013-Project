@@ -4,231 +4,230 @@
  */
 package dk.itu.smds.e2013.jgroups;
 
-import dk.itu.smds.e2013.jgroups.common.TaskProvider;
-import dk.itu.smds.e2013.serialization.common.Envelope;
-import dk.itu.smds.e2013.serialization.common.Task;
-import dk.itu.smds.e2013.serialization.common.TaskSerializer;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+
 import javax.xml.bind.JAXBException;
+
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 
+import dk.itu.smds.e2013.jgroups.common.TaskProvider;
+import dk.itu.smds.e2013.serialization.common.Task;
+import dk.itu.smds.e2013.serialization.common.TaskSerializer;
+import dk.itu.smds.e2013.serialization.common.Envelope;
+
 /**
- *
+ * 
  * @author rao, Rasmus Kreiner
  */
 public class TaskManagerJGroupApp {
 
-    //private String taskXmlPath = "/Users/rao/Dropbox/PhDWork/teaching/NetBeans-Projects/lab-exercises/week-06/TaskManagerJGroupApp/src/resources/task-manager-xml.xml";
-    String user_name = System.getProperty("user.name", "n/a");
-    private TaskProvider provider;
-    String localIp = "127.0.0.1";
-    int addPort = 51924;
-    int deletePort = 51925;
-    int updatePart = 51926;
-    private JChannel channelTasks;
-    BufferedReader in;
+	String user_name = System.getProperty("user.name", "n/a");
+	private TaskProvider provider;
+	private JChannel channelTasks;
+	BufferedReader in;
 
-    public void start() throws Exception {
+	public void start() throws Exception {
 
+		in = new BufferedReader(new InputStreamReader(System.in));
 
-        in = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Please enter the path to task-manager-xml!");
 
-        System.out.println("Please enter the path to task-manager-xml!");
+		System.out.println(">");
 
-        System.out.println(">");
+		try {
 
-        try {
+			String taskXmlPath = in.readLine();
 
-            String taskXmlPath = in.readLine();
+			// First load the tasks from the task manager Xml.
+			provider = new TaskProvider(taskXmlPath);
 
-            // First load the tasks from the task manager Xml.
-            provider = new TaskProvider(taskXmlPath);
+		} catch (Exception ex) {
 
+			System.out
+					.println("Failed to load Task Manager Xml! Error message:"
+							+ ex.getMessage());
 
-        } catch (Exception ex) {
+			return;
+		}
 
-            System.out.println("Failed to load Task Manager Xml! Error message:" + ex.getMessage());
+		// Create channels for each opertaion.
+		channelTasks = new JChannel();
 
-            return;
-        }
+		channelTasks.setReceiver(new TaskReceiver(provider, channelTasks));
 
+		channelTasks.connect("Add Tasks Channel");
 
-        // Create channels for each opertaion.
-        channelTasks = new JChannel();
+		channelTasks.getState(null, 10000);
 
-        channelTasks.setReceiver(new TaskReceiver(provider, channelTasks));
+		eventLoop();
 
-        channelTasks.connect("Add Tasks Channel");
+		channelTasks.close();
 
-        channelTasks.getState(null, 10000);
+	}
 
-        eventLoop();
+	private void eventLoop() {
 
-        channelTasks.close();
+		while (true) {
+			try {
 
+				System.out
+						.println("Usage: type one of the commands: 'add', 'delete', 'update', 'replicate', 'execute', 'request', 'get'   ! otherwise type 'exit' to quit!  ");
 
-    }
+				System.out.print("> ");
 
-    private void eventLoop() {
+				System.out.flush();
 
-        while (true) {
-            try {
+				String command = in.readLine().toLowerCase();
 
-                System.out.println("Usage: type one of the commands: 'add', 'delete', 'update', 'replicate', 'execute', 'request', 'get'   ! otherwise type 'exit' to quit!  ");
+				Envelope envelope = new Envelope();
 
-                System.out.print("> ");
+				switch (command.toLowerCase().trim()) {
 
-                System.out.flush();
+				case "add":
 
-                String command = in.readLine().toLowerCase();
+					System.out
+							.println("type or paste task Xml you want to add (in single line)!");
 
-                Envelope envelope = new Envelope();
+					System.out.print("> ");
 
+					// Write Task To Channel
+					String taskXml = in.readLine();
 
+					Task addTask = TaskSerializer.DeserializeTask(taskXml);
 
-                switch (command.toLowerCase().trim()) {
+					envelope.command = command;
 
-                    case "add":
+					envelope.data.add(addTask);
 
-                        System.out.println("type or paste task Xml you want to add (in single line)!");
+					WriteEnvelopeToChannel(envelope, channelTasks);
 
-                        System.out.print("> ");
+					break;
 
-                        //Write Task To Channel
-                        String taskXml = in.readLine();
+				case "update":
 
-                        Task addTask = TaskSerializer.DeserializeTask(taskXml);
+					System.out.println("type or paste task Xml ");
 
-                        envelope.command = command;
+					System.out.print("> ");
 
-                        envelope.data.add(addTask);
+					break;
 
-                        WriteEnvelopeToChannel(envelope, channelTasks);
+				case "delete":
 
-                        break;
+					System.out
+							.println("type or paste task Xml you want to delete (in single line)!");
 
-                    case "update":
+					System.out.print("> ");
 
-                        System.out.println("type or paste task Xml ");
+					// Write Task To Channel
+					String taskXml2 = in.readLine();
 
-                        System.out.print("> ");
+					Task deleteTask = TaskSerializer.DeserializeTask(taskXml2);
 
-                        break;
+					envelope.command = command;
 
-                    case "delete":
+					envelope.data.add(deleteTask);
 
-                        System.out.println("type or paste task Xml you want to delete (in single line)!");
+					WriteEnvelopeToChannel(envelope, channelTasks);
 
-                        System.out.print("> ");
+					break;
 
-                        //Write Task To Channel
-                        String taskXml2 = in.readLine();
+				case "trace":
 
-                        Task deleteTask = TaskSerializer.DeserializeTask(taskXml2);
+					envelope.command = command;
 
-                        envelope.command = command;
+					WriteEnvelopeToChannel(envelope, channelTasks);
 
-                        envelope.data.add(deleteTask);
+					break;
 
-                        WriteEnvelopeToChannel(envelope, channelTasks);
+				case "replicate":
 
-                        break;
+					envelope.command = command;
 
-                    case "trace":
+					WriteEnvelopeToChannel(envelope, channelTasks);
 
-                        envelope.command = command;
+					break;
 
-                        WriteEnvelopeToChannel(envelope, channelTasks);
+				case "execute":
+					System.out
+							.println("type or paste task Xml you want to want to execute (in single line)!");
+					System.out.print("> ");
+					String taskXml3 = in.readLine();
+					Task executeTask = TaskSerializer.DeserializeTask(taskXml3);
+					envelope.command = command;
+					envelope.data.add(executeTask);
+					WriteEnvelopeToChannel(envelope, channelTasks);
+					break;
 
-                        break;
+				case "request":
+					System.out
+							.println("type in the id you want to want to put a request on (in single line)!");
+					System.out.print("> ");
+					String taskRequest = in.readLine();
+					envelope.command = command;
+					envelope.id = taskRequest;
+					WriteEnvelopeToChannel(envelope, channelTasks);
+					break;
 
+				case "get":
+					System.out
+							.println("type role you want to want to put a request on (in single line)!");
+					System.out.print("> ");
+					String taskRole = in.readLine();
+					envelope.command = command;
+					envelope.role = taskRole;
+					WriteEnvelopeToChannel(envelope, channelTasks);
+					break;
 
-                    case "replicate":
+				case "exit":
+					return;
 
-                        envelope.command = command;
+				default:
+					// System.out.println("Usage: type one of the commands: add, delete, update !  ");
+					continue;
 
-                        WriteEnvelopeToChannel(envelope, channelTasks);
+				}
 
-                        break;
-                        
-                    case "execute":
-                    	System.out.println("type or paste task Xml you want to want to execute (in single line)!");
-                    	System.out.print("> ");
-                    	String taskXml3 = in.readLine();
-                    	Task executeTask = TaskSerializer.DeserializeTask(taskXml3);
-                        envelope.command = command;
-                        envelope.data.add(executeTask);
-                        WriteEnvelopeToChannel(envelope, channelTasks);
-                    	break;
-                    	
-                    case "request":
-                    	System.out.println("type or paste task Xml you want to want to put a request on (in single line)!");
-                    	System.out.print("> ");
-                    	String taskXml4 = in.readLine();
-                    	Task requestTask = TaskSerializer.DeserializeTask(taskXml4);
-                        envelope.command = command;
-                        envelope.data.add(requestTask);
-                        WriteEnvelopeToChannel(envelope, channelTasks);
-                    	break;
-                    	
-                    case "get":
-                    	System.out.println("type or paste task Xml you want to want to put a request on (in single line)!");
-                    	System.out.print("> ");
-                    	String taskXml5 = in.readLine();
-                    	Task getTask = TaskSerializer.DeserializeTask(taskXml5);
-                        envelope.command = command;
-                        envelope.data.add(getTask);
-                    	WriteEnvelopeToChannel(envelope, channelTasks);
-                    	break;
+			} catch (Exception e) {
+				System.out.println("Exit from EventLoop! Error message:"
+						+ e.getMessage());
 
-                    case "exit":
-                        return;
+			}
 
-                    default:
-                        //System.out.println("Usage: type one of the commands: add, delete, update !  ");
-                        continue;
+		}
+	}
 
+	private void WriteEnvelopeToChannel(Envelope envelope, JChannel channel)
+			throws Exception {
 
-                }
+		try {
+			String envelopeXml = TaskSerializer.SerializeEnvelope(envelope);
 
+			Message msg = new Message(null, null, envelopeXml);
 
-            } catch (Exception e) {
-                System.out.println("Exit from EventLoop! Error message:" + e.getMessage());
+			channel.send(msg);
 
-            }
-        }
-    }
+		} catch (JAXBException ex) {
+			System.out
+					.println("Failed to write task object to the channel. Error message:"
+							+ ex.getMessage());
+		}
+	}
 
-    private void WriteEnvelopeToChannel(Envelope envelope, JChannel channel) throws Exception {
+	private void writeToChannel(JChannel channel, String message)
+			throws Exception {
+		message = "[" + user_name + "] " + message;
 
-        try {
-            String envelopeXml = TaskSerializer.SerializeEnvelope(envelope);
+		Message msg = new Message(null, null, message);
 
-            Message msg = new Message(null, null, envelopeXml);
+		channel.send(msg);
+	}
 
-            channel.send(msg);
+	public static void main(String[] args) throws Exception {
 
+		// Start Task manager.
+		new TaskManagerJGroupApp().start();
 
-
-
-        } catch (JAXBException ex) {
-            System.out.println("Failed to write task object to the channel. Error message:" + ex.getMessage());
-        }
-    }
-
-    private void writeToChannel(JChannel channel, String message) throws Exception {
-        message = "[" + user_name + "] " + message;
-
-        Message msg = new Message(null, null, message);
-
-        channel.send(msg);
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        // Start Task manager.
-        new TaskManagerJGroupApp().start();
-    }
+	}
 }
