@@ -1,12 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dk.itu.smds.e2013.jgroups;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,40 +35,6 @@ public class TaskReceiver extends ReceiverAdapter {
 	}
 
 	@Override
-	public void getState(OutputStream output) throws Exception {
-		// synchronized (provider.TaskManagerInstance) {
-		//
-		// // write the whole task manager object to the stream.
-		// Util.objectToStream(provider.TaskManagerInstance, new
-		// DataOutputStream(output));
-		// }
-	}
-
-	@Override
-	public void setState(InputStream input) throws Exception {
-		// TaskManager taskmanager = (TaskManager) Util.objectFromStream(new
-		// DataInputStream(input));
-		//
-		// synchronized (provider.TaskManagerInstance) {
-		//
-		// provider.TaskManagerInstance.tasks.clear();
-		//
-		// provider.TaskManagerInstance.users.clear();
-		//
-		// provider.TaskManagerInstance.users.addAll(taskmanager.users);
-		//
-		// provider.TaskManagerInstance.tasks.addAll(taskmanager.tasks);
-		//
-		// }
-		// System.out.println("received state (" + taskmanager.tasks.size() +
-		// " Tasks in chat history):");
-		//
-		// for (Task task : taskmanager.tasks) {
-		// System.out.println(task);
-		// }
-	}
-
-	@Override
 	public void viewAccepted(View new_view) {
 		System.out.println("** view: " + new_view);
 	}
@@ -90,13 +50,9 @@ public class TaskReceiver extends ReceiverAdapter {
 			DeserializeEnvelope = TaskSerializer
 					.DeserializeEnvelope(envelopeXml);
 
-			// System.out.println("Input envelope received: " + inputData);
-
-			// We may get
 		} catch (JAXBException ex) {
 			System.out.println(prefix
 					+ "Failed to deserialize envelope Xml. Error message" + ex);
-
 			return;
 		}
 
@@ -132,7 +88,7 @@ public class TaskReceiver extends ReceiverAdapter {
 						+ provider.TaskManagerInstance.tasks.size());
 			}
 		} else if (DeserializeEnvelope.command.equals("delete")) {
-			Task taskWithId = GetTaskWithId(DeserializeEnvelope.data.get(0).id);
+			Task taskWithId = GetTaskWithId(DeserializeEnvelope.id);
 
 			if (taskWithId != null) {
 
@@ -151,7 +107,7 @@ public class TaskReceiver extends ReceiverAdapter {
 				}
 
 				System.out.println(prefix + "Task with Id:"
-						+ DeserializeEnvelope.data.get(0).id + " deleted!"
+						+ DeserializeEnvelope.id + " deleted!"
 						+ "total number of tasks: "
 						+ provider.TaskManagerInstance.tasks.size());
 
@@ -203,12 +159,12 @@ public class TaskReceiver extends ReceiverAdapter {
 		}
 
 		else if (DeserializeEnvelope.command.equals("execute")) {
-			Task taskToWork = DeserializeEnvelope.data.get(0);
-			if (GetTaskWithId(taskToWork.id) != null) {
+			String taskToWork = DeserializeEnvelope.id;
+			if (GetTaskWithId(taskToWork) != null) {
 				for (int index = 0; index < provider.TaskManagerInstance.tasks
 						.size(); index++) {
 					if (provider.TaskManagerInstance.tasks.get(index).id
-							.equals(taskToWork.id)) {
+							.equals(taskToWork)) {
 						provider.TaskManagerInstance.tasks.get(index).requiered = false;
 						provider.TaskManagerInstance.tasks.get(index).status = "Executed";
 					}

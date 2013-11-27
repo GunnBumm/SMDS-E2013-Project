@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dk.itu.smds.e2013.jgroups;
 
 import java.io.BufferedReader;
@@ -13,9 +9,9 @@ import org.jgroups.JChannel;
 import org.jgroups.Message;
 
 import dk.itu.smds.e2013.jgroups.common.TaskProvider;
+import dk.itu.smds.e2013.serialization.common.Envelope;
 import dk.itu.smds.e2013.serialization.common.Task;
 import dk.itu.smds.e2013.serialization.common.TaskSerializer;
-import dk.itu.smds.e2013.serialization.common.Envelope;
 
 /**
  * 
@@ -116,18 +112,16 @@ public class TaskManagerJGroupApp {
 				case "delete":
 
 					System.out
-							.println("type or paste task Xml you want to delete (in single line)!");
+							.println("type the id of the task(s) you want to delete:");
 
 					System.out.print("> ");
 
 					// Write Task To Channel
-					String taskXml2 = in.readLine();
-
-					Task deleteTask = TaskSerializer.DeserializeTask(taskXml2);
+					String taskDelete = in.readLine();
 
 					envelope.command = command;
 
-					envelope.data.add(deleteTask);
+					envelope.id = taskDelete;
 
 					WriteEnvelopeToChannel(envelope, channelTasks);
 
